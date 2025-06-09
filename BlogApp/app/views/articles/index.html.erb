@@ -1,0 +1,37 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><%= params[:my_articles] ? "My Articles" : "All Articles" %></h1>
+  <%= link_to "New Article", new_article_path, class: "btn btn-primary" %>
+</div>
+
+<div class="row">
+  <% @articles.each do |article| %>
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <% if article.image.present? %>
+          <%= image_tag article.image.thumb.url, class: "card-img-top" %>
+        <% end %>
+        <div class="card-body">
+          <h5 class="card-title"><%= article.title %></h5>
+          <p class="card-text"><%= truncate(article.content, length: 100) %></p>
+          <p class="card-text">
+            <small class="text-muted">
+              By <%= article.user.full_name %> • 
+              <%= time_ago_in_words(article.created_at) %> ago
+              <% if article.reports_count > 0 %>
+                • <%= pluralize(article.reports_count, 'report') %>
+              <% end %>
+            </small>
+          </p>
+          <%= link_to "Read More", article, class: "btn btn-outline-primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @articles.empty? %>
+  <div class="text-center">
+    <p class="lead">No articles found.</p>
+    <%= link_to "Create your first article", new_article_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

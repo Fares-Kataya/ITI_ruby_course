@@ -1,0 +1,64 @@
+<div class="article-header mb-4">
+  <h1><%= @article.title %></h1>
+  <p class="text-muted">
+    By <%= @article.user.full_name %> • 
+    <%= @article.created_at.strftime("%B %d, %Y") %>
+  </p>
+</div>
+
+<% if @article.image.present? %>
+  <div class="article-image mb-4">
+    <%= image_tag @article.image.medium.url, class: "img-fluid rounded" %>
+  </div>
+<% end %>
+
+<div class="article-content mb-4">
+  <%= simple_format(@article.content) %>
+</div>
+
+<div class="article-actions">
+  <% if can? :update, @article %>
+    <%= link_to "Edit", edit_article_path(@article), class: "btn btn-warning" %>
+  <% end %>
+  
+  <% if can? :destroy, @article %>
+    <%= link_to "Delete", @article, method: :delete, 
+                confirm: "Are you sure?", class: "btn btn-danger" %>
+  <% end %>
+  
+  <% if current_user != @article.user %>
+    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reportModal">
+      Report Article
+    </button>
+  <% end %>
+</div>
+
+<% if current_user != @article.user %>
+  <div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <%= form_with model: [@article, Report.new], local: true do |f| %>
+          <div class="modal-header">
+            <h5 class="modal-title">Report Article</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <%= f.label :reason, class: "form-label" %>
+              <%= f.select :reason, options_for_select(Report::REASONS.map { |r| [r, r] }), 
+                          { prompt: "Select a reason" }, { class: "form-select" } %>
+            </div>
+            <div class="mb-3">
+              <%= f.label :description, class: "form-label" %>
+              <%= f.text_area :description, class: "form-control", rows: 3 %>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <%= f.submit "Submit Report", class: "btn btn-danger" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
